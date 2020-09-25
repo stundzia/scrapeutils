@@ -22,7 +22,7 @@ type ProxyRow struct {
 	Password string
 }
 
-func dbConn(user string, password string, dbName string) (db *sql.DB) {
+func NewDbConn(user string, password string, dbName string) (db *sql.DB) {
 	db, err := sql.Open("mysql", user+":"+password+"@/"+dbName)
 	if err != nil {
 		log.Fatalf("could not obtain db connection: %s", err.Error())
@@ -36,7 +36,7 @@ func NewProxyDB(user string, password string, dbName string, table string) *Prox
 		log.Fatalf("could not initiate zap logger: %s", err)
 	}
 	return &ProxyDB{
-		dbConn: dbConn(user, password, dbName),
+		dbConn: NewDbConn(user, password, dbName),
 		logger: logger,
 		table: table,
 	}
