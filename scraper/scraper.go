@@ -27,7 +27,7 @@ func NewScraper() *Scraper {
 	}
 }
 
-func (scrap *Scraper) FetchContent(url string) ([]byte, error) {
+func (scrap *Scraper) FetchContent(url string) ([]byte, int, error) {
 	p := scrap.proxyPool.GetRandomProxy()
 	if p != nil {
 
@@ -41,12 +41,12 @@ func (scrap *Scraper) FetchContent(url string) ([]byte, error) {
 	resp, err := c.Get(url)
 	if err != nil {
 		scrap.logger.Error("error during GET", zap.String("error", err.Error()), zap.String("target url", url))
-		return nil, err
+		return nil, 0, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		scrap.logger.Error("error reading response body from GET", zap.String("error", err.Error()), zap.String("target url", url))
 	}
-	return body, nil
+	return body, resp.StatusCode, nil
 }
