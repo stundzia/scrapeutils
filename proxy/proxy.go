@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"fmt"
-	"github.com/stundzia/scrapeutils/db"
+	"f.oxy.works/paulius.stundzia/scrapeutils/db"
 	"go.uber.org/zap"
 	"log"
 	"net/http"

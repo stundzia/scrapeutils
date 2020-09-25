@@ -1,7 +1,7 @@
 package scraper
 
 import (
-	"github.com/stundzia/scrapeutils/proxy"
+	"f.oxy.works/paulius.stundzia/scrapeutils/proxy"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
