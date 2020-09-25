@@ -1,12 +1,14 @@
 package scraper
 
 import (
-	"f.oxy.works/paulius.stundzia/scrapeutils/proxy"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"go.uber.org/zap"
+
+	"f.oxy.works/paulius.stundzia/scrapeutils/proxy"
 )
 
 type Scraper struct {

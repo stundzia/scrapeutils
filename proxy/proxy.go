@@ -2,11 +2,13 @@ package proxy
 
 import (
 	"fmt"
-	"f.oxy.works/paulius.stundzia/scrapeutils/db"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/url"
+
+	"go.uber.org/zap"
+
+	"f.oxy.works/paulius.stundzia/scrapeutils/db"
 )
 
 type Pool struct {
