@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func TestScraper_FetchContentNoProxy(t *testing.T) {
+func TestScraper_FetchContentAsStringNoProxy(t *testing.T) {
 	scrap := NewScraper()
-	res, status, err := scrap.FetchContent("https://ip.oxylabs.io/")
+	res, status, err := scrap.FetchContentBytes("https://ip.oxylabs.io/")
 	if err != nil {
 		t.Errorf("error during fetch: %s", err.Error())
 	}

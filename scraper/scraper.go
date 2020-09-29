@@ -1,6 +1,8 @@
 package scraper
 
 import (
+	"f.oxy.works/paulius.stundzia/scrapeutils/parser"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,7 +14,7 @@ import (
 )
 
 type Scraper struct {
-	proxyPool	*proxy.Pool
+	ProxyPool	*proxy.Pool
 	logger *zap.Logger
 }
 
@@ -22,31 +24,50 @@ func NewScraper() *Scraper {
 		log.Fatalf("could not initiate zap logger: %s", err)
 	}
 	return &Scraper{
-		proxyPool:  proxy.NewProxyPool(logger),
+		ProxyPool:  proxy.NewProxyPool(logger),
 		logger:     logger,
 	}
 }
 
-func (scrap *Scraper) FetchContent(url string) ([]byte, int, error) {
-	p := scrap.proxyPool.GetRandomProxy()
-	if p != nil {
-
-	}
+func (scrap *Scraper) FetchContentBody(url string) (body io.ReadCloser, status int, err error) {
 	c := &http.Client{
 		Transport:     nil,
 		CheckRedirect: nil,
 		Jar:           nil,
 		Timeout:       20 * time.Second,
 	}
+	p := scrap.ProxyPool.GetRandomProxy()
+	if p != nil {
+		c.Transport = p.GetTransport()
+	}
 	resp, err := c.Get(url)
 	if err != nil {
 		scrap.logger.Error("error during GET", zap.String("error", err.Error()), zap.String("target url", url))
 		return nil, 0, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	return resp.Body, resp.StatusCode, err
+}
+
+func (scrap *Scraper) FetchContentBytes(url string) ([]byte, int, error) {
+	body, status, err := scrap.FetchContentBody(url)
+	bodyBytes, err := ioutil.ReadAll(body)
 	if err != nil {
 		scrap.logger.Error("error reading response body from GET", zap.String("error", err.Error()), zap.String("target url", url))
 	}
-	return body, resp.StatusCode, nil
+	defer body.Close()
+	return bodyBytes, status, nil
+}
+
+
+func (scrap *Scraper) FetchAndReturnParser(url string) (htmlParser *parser.HtmlParser, err error) {
+	body, status, err := scrap.FetchContentBody(url)
+	if err != nil || status != 200 {
+		scrap.logger.Error("unable to get valid response for parsing", zap.String("target url", url), zap.Int("status", status))
+	}
+	htmlParser, err = parser.NewHtmlParser(url, body)
+	if err != nil {
+		scrap.logger.Error("unable to init parser", zap.String("target url", url), zap.String("error", err.Error()))
+		return nil, err
+	}
+	return htmlParser, nil
 }

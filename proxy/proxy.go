@@ -31,6 +31,10 @@ func NewProxyPool(logger *zap.Logger) *Pool {
 	}
 }
 
+func (pp *Pool) InitMysqlProxyDB(user string, password string, name string, table string) {
+	pp.proxyDB = db.NewProxyDB(user, password, name, table)
+}
+
 func (pp *Pool) GetRandomProxy() *proxy {
 	for p := range pp.proxies {
 		pp.proxies[p]++
@@ -39,8 +43,8 @@ func (pp *Pool) GetRandomProxy() *proxy {
 	return nil
 }
 
-func (pp *Pool) AddProxyViaUrlString(s string) {
-	pp.proxies[GetProxyFromUrlString(s)] = 0
+func (pp *Pool) AddProxyViaUrlString(url string) {
+	pp.proxies[GetProxyFromUrlString(url)] = 0
 }
 
 func (p *proxy) GetTransport() *http.Transport {
@@ -81,6 +85,6 @@ func (pp *Pool) PopulatePoolFromDB(basesource string, proxyType string, limit in
 		pp.logger.Error("proxy get from db error", zap.String("error", err.Error()))
 	}
 	for _, r := range proxieRows {
-		fmt.Println(r)
+		pp.AddProxyFromDBProxy(r)
 	}
 }
