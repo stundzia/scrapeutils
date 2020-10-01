@@ -3,19 +3,25 @@ package parser
 import (
 	"github.com/PuerkitoBio/goquery"
 	"io"
+	"net/url"
 )
 
 type HtmlParser struct {
-	url string
-	baseUrl string
+	Url string
+	BaseUrl string
 	content string
 	Doc *goquery.Document
 }
 
-func NewHtmlParser(url string, body io.Reader) (*HtmlParser, error) {
+func NewHtmlParser(urlStr string, body io.Reader) (*HtmlParser, error) {
 	var err error
+	urlObj, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
 	parser := &HtmlParser{
-		url:     url,
+		Url:     urlStr,
+		BaseUrl: urlObj.Host,
 	}
 	parser.Doc, err = goquery.NewDocumentFromReader(body)
 	if err != nil {
